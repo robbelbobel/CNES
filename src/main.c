@@ -1,14 +1,12 @@
 #include <stdio.h>
 
-#include "core/instructions.h"
-
-extern void (*instructions[1])(nes_t* nes);
+#include "core/nes.h"
 
 int main(){
     /** INITIALIZATION **/
     nes_t* nes = create_nes();
 
-    instructions[0](nes);
+    free(nes);
 
     return 0;
 }

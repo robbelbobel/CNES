@@ -1,8 +1,8 @@
 #ifndef CPU_H
 #define CPU_H
 
-#include <stdint.h>
-#include <stdlib.h>
+#include "stdlib.h"
+#include "stdint.h"
 
 typedef struct{
     // Registers
@@ -11,6 +11,12 @@ typedef struct{
     uint16_t PC;    // Program Counter
     uint8_t S;      // Stack Pointer
     uint8_t P;      // Status Register
+
+    // Additional
+    uint8_t cycles;
 }cpu_t;
+
+cpu_t* create_cpu();
+void cpu_step();
 
 #endif

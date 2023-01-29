@@ -2,11 +2,14 @@
 #define NES_H
 
 #include "cpu.h"
+#include "mmu.h"
+#include "instructions.h"
 
 typedef struct{
     cpu_t* cpu;
+    mmu_t* mmu;
 }nes_t;
 
-cpu_t* create_nes();
+nes_t* create_nes();
 
 #endif

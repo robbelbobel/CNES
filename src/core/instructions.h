@@ -3,8 +3,10 @@
 
 #include <stdio.h>
 
-#include "nes.h"
- 
-void nop(nes_t*);
+#include "cpu.h"
+#include "mmu.h"
+
+void brk(cpu_t* cpu, mmu_t* mmu);
+void nop(cpu_t* cpu, mmu_t* mmu);
 
 #endif

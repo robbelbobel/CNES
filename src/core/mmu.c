@@ -1,5 +1,11 @@
 #include "mmu.h"
 
+mmu_t* create_mmu(){
+    mmu_t* mmu = malloc(sizeof(mmu_t));
+
+    return mmu;
+}
+
 void mmu_write(mmu_t* mmu, uint16_t address, uint8_t value){
     // Internal RAM
     if(address < MMU_INTERNAL_RAM_SZ){

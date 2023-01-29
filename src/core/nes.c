@@ -1,12 +1,12 @@
 #include "nes.h"
 
-cpu_t* create_nes(){
-    // Create Components
-    cpu_t* cpu = malloc(sizeof(cpu_t));
-    nes_t* nes = malloc(sizeof(nes_t));
-    
-    // Link Components
-    nes->cpu = cpu;
+nes_t* create_nes(){
+    // Allocate NES
+    nes_t* nes = (nes_t*) malloc(sizeof(nes_t));
 
-    return cpu;
+    // Attach Components
+    nes->cpu = create_cpu();
+    nes->mmu = create_mmu();
+
+    return nes;
 }

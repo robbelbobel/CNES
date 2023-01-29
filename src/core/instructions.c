@@ -1,8 +1,11 @@
 #include "instructions.h"
 
-void (*instructions[])(nes_t* nes) = {nop};
+void (*instructions[]) = {brk, nop};
 
-void nop(nes_t* nes){
+void brk(cpu_t* cpu, mmu_t* mmu){
 
 }
 
+void nop(cpu_t* cpu, mmu_t* mmu){
+
+}
