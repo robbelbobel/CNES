@@ -10,6 +10,9 @@ typedef struct{
     mmu_t* mmu;
 }nes_t;
 
+
 nes_t* create_nes();
+
+void step_nes(nes_t* nes);
 
 #endif

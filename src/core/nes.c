@@ -10,3 +10,8 @@ nes_t* create_nes(){
 
     return nes;
 }
+
+void step_nes(nes_t* nes){
+    // Step CPU
+    step_cpu(nes->cpu, nes->mmu);
+}

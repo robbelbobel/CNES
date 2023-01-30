@@ -17,6 +17,7 @@ typedef struct{
     uint8_t cartridge[MMU_CARTRIDGE_SZ];
 }mmu_t;
 
+
 mmu_t* create_mmu();
 
 void mmu_write(mmu_t* mmu, uint16_t address, uint8_t value);

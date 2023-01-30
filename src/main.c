@@ -6,7 +6,7 @@ int main(){
     /** INITIALIZATION **/
     nes_t* nes = create_nes();
 
-    free(nes);
+    while(1) step_nes(nes);
 
     return 0;
 }
