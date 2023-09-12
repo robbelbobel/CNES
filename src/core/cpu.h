@@ -8,6 +8,8 @@
 
 #include "stdio.h"
 
+#define MASK_N 0b10000000
+
 #define FLAG_C 0b00000001
 #define FLAG_Z 0b00000010
 #define FLAG_I 0b00000100
@@ -27,13 +29,29 @@ typedef struct{
     uint8_t cycles;
 }cpu_t;
 
+// Flag Operations
+void set_flag(cpu_t* const cpu, const uint8_t flag);
+void clear_flag(cpu_t* const cpu, const uint8_t flag);
 
+// CPU Functions
 cpu_t* create_cpu();
 
-void set_flag(cpu_t* cpu, uint8_t flag);
-void clear_flag(cpu_t* cpu, uint8_t flag);
+void step_cpu(cpu_t* const cpu, mmu_t* const mmu);
+void __exec_instr(cpu_t* const cpu, mmu_t* const mmu);
 
-void step_cpu(cpu_t* cpu, mmu_t* mmu);
-void __exec_instr(cpu_t* cpu, mmu_t* mmu);
+/** INSTRUCTIONS **/
+// ora
+void ora_imm(cpu_t* const cpu, mmu_t* const mmu);
+// sei
+void sei(cpu_t* const cpu, mmu_t* const mmu);
+// LDA
+void lda_x_ind(cpu_t* const cpu, mmu_t* const mmu);
+void lda_zpg(cpu_t* const cpu, mmu_t* const mmu);
+void lda_imm(cpu_t* const cpu, mmu_t* const mmu);
+void lda_abs(cpu_t* const cpu, mmu_t* const mmu);
+// cld
+void cld(cpu_t* const cpu, mmu_t* const mmu);
+// nop
+void nop(cpu_t* const cpu, mmu_t* const mmu);
 
 #endif

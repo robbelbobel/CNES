@@ -8,5 +8,4 @@ add_compile_options(-Werror)
 add_executable(${PROJECT_NAME}  ${CMAKE_CURRENT_SOURCE_DIR}/src/main.c
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src/core/nes.c
                                 ${CMAKE_CURRENT_SOURCE_DIR}/src/core/cpu.c
-                                ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mmu.c
-                                ${CMAKE_CURRENT_SOURCE_DIR}/src/core/instructions.c)
+                                ${CMAKE_CURRENT_SOURCE_DIR}/src/core/mmu.c)
