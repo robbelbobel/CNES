@@ -1,8 +1,7 @@
 #ifndef CPU_H
 #define CPU_H
 
-#include "stdlib.h"
-#include "stdint.h"
+#include "stdlib.h" #include "stdint.h"
 
 #include "mmu.h"
 
@@ -49,6 +48,12 @@ void lda_x_ind(cpu_t* const cpu, mmu_t* const mmu);
 void lda_zpg(cpu_t* const cpu, mmu_t* const mmu);
 void lda_imm(cpu_t* const cpu, mmu_t* const mmu);
 void lda_abs(cpu_t* const cpu, mmu_t* const mmu);
+
+void lda_ind_y(cpu_t* const cpu, mmu_t* const mmu);
+void lda_zpg_x(cpu_t* const cpu, mmu_t* const mmu);
+void lda_abs_y(cpu_t* const cpu, mmu_t* const mmu);
+void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu);
+
 // cld
 void cld(cpu_t* const cpu, mmu_t* const mmu);
 // nop

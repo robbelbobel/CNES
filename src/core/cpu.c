@@ -82,68 +82,77 @@ void ora_imm(cpu_t* const cpu, mmu_t* const mmu){
 void sei(cpu_t* const cpu, mmu_t* const mmu){
     set_flag(cpu, FLAG_I);
 
-    cpu->cycle  += 2;
+    cpu->cycles  += 2;
     cpu->pc     += 1;
 }
 
 // LDA
 void lda_x_ind(cpu_t* const cpu, mmu_t* const mmu){
-    const uint8_t arg = mmu_read(cpu->pc + 1);
+    // X-Indexed Absolute Addressing
+    const uint8_t arg = mmu_read(mmu, cpu->pc + 1);
 
-    cpu->a = mmu_read(((uint16_t) mmu_read(cpu->x + arg + 1 % 0xff)) << 8 + mmu_read(cpu->x + arg % 0xff));
+    cpu->a = mmu_read(mmu, (((uint16_t) mmu_read(mmu, cpu->x + arg + 1 % 0xff)) << 8) + mmu_read(mmu, cpu->x + arg % 0xff));
 
     if(cpu->a)          clear_flag(cpu, FLAG_Z);
     if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
 
-    cpu->cycle  += 6;
+    cpu->cycles  += 6;
     cpu->pc     += 2;
 }
 
 void lda_zpg(cpu_t* const cpu, mmu_t* const mmu){
-    const uint8_t arg = mmu_read(cpu->pc + 1); 
+    // Zero Page Addressing
+    const uint8_t arg = mmu_read(mmu, cpu->pc + 1); 
 
-    cpu->a = mmu_read(arg);
+    cpu->a = mmu_read(mmu, arg);
 
     if(cpu->a)          clear_flag(cpu, FLAG_Z);
     if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
 
-    cpu->cycle  += 3;
+    cpu->cycles  += 3;
     cpu->pc     += 2;
 }
 
 void lda_imm(cpu_t* const cpu, mmu_t* const mmu){
-    const uint8_t arg = mmu_read(cpu->pc + 1);
+    // Immediate Addressing
+    const uint8_t arg = mmu_read(mmu, cpu->pc + 1);
 
     cpu->a = arg;
 
     if(cpu->a)          clear_flag(cpu, FLAG_Z);
     if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
 
-    cpu->cycle  += 2;
+    cpu->cycles  += 2;
     cpu->pc     += 2;
 }
 
 void lda_abs(cpu_t* const cpu, mmu_t* const mmu){
-    const uint16_t arg = ((uint16_t) mmu_read(cpu->pc + 2)) << 8 + mmu_read(cpu->pc + 1);
+    // Absolute Addressing
+    const uint16_t arg = (((uint16_t) mmu_read(mmu, cpu->pc + 2)) << 8) + mmu_read(mmu, cpu->pc + 1);
 
-    cpu->a = mmu_read(arg);
+    cpu->a = mmu_read(mmu, arg);
 
     if(cpu->a)          clear_flag(cpu, FLAG_Z);
     if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
 
-    cpu->cycle  += 4;
+    cpu->cycles  += 4;
     cpu->pc     += 3;
 }
 
-void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu){
-    const uint16_t arg = ((uint16_t) mmu_read(cpu->pc + 2)) << 8 + mmu_read(cpu->pc + 1);
+void lda_ind_y(cpu_t* const cpu, mmu_t* const mmu){
+    // Zero Page Indirect Y-Indexed Addressing
+    const uint8_t arg = mmu_read(mmu, cpu->pc + 1);
+}
 
-    cpu->a = mmu_read(arg + cpu->x);
+void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu){
+    const uint16_t arg = (((uint16_t) mmu_read(mmu, cpu->pc + 2)) << 8) + mmu_read(mmu, cpu->pc + 1);
+
+    cpu->a = mmu_read(mmu, arg + cpu->x);
 
     if(cpu->a)          clear_flag(cpu, FLAG_Z);
     if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
     
-    cpu->cycle  += (arg + cpu->x) > 0xff ? 4 : 3; // Page Boundary Crossing
+    cpu->cycles  += (arg + cpu->x) > 0xff ? 4 : 3; // Page Boundary Crossing
     cpu->pc     += 3;
 }
 
@@ -152,7 +161,7 @@ void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu){
 void cld(cpu_t* const cpu, mmu_t* const mmu){
     clear_flag(cpu, FLAG_D);
 
-    cpu->cycle  += 2;
+    cpu->cycles  += 2;
     cpu->pc     += 1; 
 }
 
