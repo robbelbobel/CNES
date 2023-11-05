@@ -1,11 +1,11 @@
 #ifndef CPU_H
 #define CPU_H
 
-#include "stdlib.h" #include "stdint.h"
+#include <stdio.h>
+#include <stdint.h>
 
 #include "mmu.h"
 
-#include "stdio.h"
 
 #define MASK_N 0b10000000
 
@@ -29,8 +29,7 @@ typedef struct{
 }cpu_t;
 
 // Flag Operations
-void set_flag(cpu_t* const cpu, const uint8_t flag);
-void clear_flag(cpu_t* const cpu, const uint8_t flag);
+void set_flag(cpu_t* const cpu, const uint8_t flag, const uint8_t value);
 
 // CPU Functions
 cpu_t* create_cpu();
@@ -48,11 +47,11 @@ void lda_x_ind(cpu_t* const cpu, mmu_t* const mmu);
 void lda_zpg(cpu_t* const cpu, mmu_t* const mmu);
 void lda_imm(cpu_t* const cpu, mmu_t* const mmu);
 void lda_abs(cpu_t* const cpu, mmu_t* const mmu);
+void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu);
 
 void lda_ind_y(cpu_t* const cpu, mmu_t* const mmu);
 void lda_zpg_x(cpu_t* const cpu, mmu_t* const mmu);
 void lda_abs_y(cpu_t* const cpu, mmu_t* const mmu);
-void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu);
 
 // cld
 void cld(cpu_t* const cpu, mmu_t* const mmu);

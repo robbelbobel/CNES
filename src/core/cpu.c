@@ -3,12 +3,9 @@
 extern void (*instructions[])(cpu_t*, mmu_t*);
 
 /** FLAG OPERATIONS **/
-void set_flag(cpu_t* const cpu, const uint8_t flag){
-    cpu->p |= flag;
-}
-
-void clear_flag(cpu_t* const cpu, const uint8_t flag){
-    cpu->p &= ~flag;
+void set_flag(cpu_t* const cpu, const uint8_t flag, const uint8_t value){
+    if(value) cpu->p |= flag;
+    else cpu->p &= ~flag;
 }
 
 /** CPU FUNCTIONS **/
@@ -47,9 +44,25 @@ void __exec_instr(cpu_t* const cpu, mmu_t* const mmu){
         case 0xad:
             lda_abs(cpu, mmu);
             break;
+        
+        case 0xb1:
+            lda_ind_y(cpu, mmu);
+            break;
+
+        case 0xb5:
+            lda_zpg_x(cpu, mmu);
+            break;
 
         case 0xd8:
             cld(cpu, mmu);
+            break;
+
+        case 0xb9:
+            lda_abs_y(cpu, mmu);
+            break;
+
+        case 0xbd:
+            lda_abs_x(cpu, mmu);
             break;
 
         case 0xea:
@@ -64,100 +77,115 @@ void __exec_instr(cpu_t* const cpu, mmu_t* const mmu){
 }
 
 /** INSTRUCTIONS **/
-// ORA
+// ora
 void ora_imm(cpu_t* const cpu, mmu_t* const mmu){
     cpu->a |= mmu_read(mmu, cpu->pc + 1);
-    
-    if(cpu->a) clear_flag(cpu, FLAG_Z);
-    else set_flag(cpu, FLAG_Z);
-
-    if(cpu->a & 0x80) set_flag(cpu, FLAG_N);
-    else clear_flag(cpu, FLAG_N);
+   
+    set_flag(cpu, FLAG_Z, !cpu->a);
+    set_flag(cpu, FLAG_N, cpu->a & 0x80);
 
     cpu->cycles += 2;
     cpu->pc     += 2;
 }
 
-// SEI
+// sei
 void sei(cpu_t* const cpu, mmu_t* const mmu){
-    set_flag(cpu, FLAG_I);
+    set_flag(cpu, FLAG_I, 1);
 
     cpu->cycles  += 2;
     cpu->pc     += 1;
 }
 
-// LDA
+/** LDA **/
+// X-Indexed Absolute Addressing
 void lda_x_ind(cpu_t* const cpu, mmu_t* const mmu){
-    // X-Indexed Absolute Addressing
     const uint8_t arg = mmu_read(mmu, cpu->pc + 1);
 
-    cpu->a = mmu_read(mmu, (((uint16_t) mmu_read(mmu, cpu->x + arg + 1 % 0xff)) << 8) + mmu_read(mmu, cpu->x + arg % 0xff));
+    cpu->a = mmu_read(mmu, (((uint16_t) mmu_read(mmu, cpu->x + arg + 1 % 256)) << 8) + mmu_read(mmu, cpu->x + arg % 256));
 
-    if(cpu->a)          clear_flag(cpu, FLAG_Z);
-    if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
+    set_flag(cpu, FLAG_Z, !cpu->a);
+    set_flag(cpu, FLAG_N, cpu->a & 0x80);
 
-    cpu->cycles  += 6;
+    cpu->cycles += 6;
     cpu->pc     += 2;
 }
 
+// Zero Page Addressing
 void lda_zpg(cpu_t* const cpu, mmu_t* const mmu){
-    // Zero Page Addressing
     const uint8_t arg = mmu_read(mmu, cpu->pc + 1); 
 
     cpu->a = mmu_read(mmu, arg);
 
-    if(cpu->a)          clear_flag(cpu, FLAG_Z);
-    if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
+    set_flag(cpu, FLAG_Z, !cpu->a);
+    set_flag(cpu, FLAG_N, cpu->a & 0x80);
 
-    cpu->cycles  += 3;
+    cpu->cycles += 3;
     cpu->pc     += 2;
 }
 
+// Immediate Addressing
 void lda_imm(cpu_t* const cpu, mmu_t* const mmu){
-    // Immediate Addressing
     const uint8_t arg = mmu_read(mmu, cpu->pc + 1);
 
     cpu->a = arg;
 
-    if(cpu->a)          clear_flag(cpu, FLAG_Z);
-    if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
+    set_flag(cpu, FLAG_Z, !cpu->a);
+    set_flag(cpu, FLAG_N, cpu->a & 0x80);
 
-    cpu->cycles  += 2;
+    cpu->cycles += 2;
     cpu->pc     += 2;
 }
 
+// Absolute Addressing
 void lda_abs(cpu_t* const cpu, mmu_t* const mmu){
-    // Absolute Addressing
     const uint16_t arg = (((uint16_t) mmu_read(mmu, cpu->pc + 2)) << 8) + mmu_read(mmu, cpu->pc + 1);
 
     cpu->a = mmu_read(mmu, arg);
 
-    if(cpu->a)          clear_flag(cpu, FLAG_Z);
-    if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
+    set_flag(cpu, FLAG_Z, !cpu->a);
+    set_flag(cpu, FLAG_N, cpu->a & 0x80);
 
-    cpu->cycles  += 4;
+    cpu->cycles += 4;
     cpu->pc     += 3;
 }
 
-void lda_ind_y(cpu_t* const cpu, mmu_t* const mmu){
-    // Zero Page Indirect Y-Indexed Addressing
-    const uint8_t arg = mmu_read(mmu, cpu->pc + 1);
-}
-
+// X-Indexed Absolute Addressing
 void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu){
     const uint16_t arg = (((uint16_t) mmu_read(mmu, cpu->pc + 2)) << 8) + mmu_read(mmu, cpu->pc + 1);
 
     cpu->a = mmu_read(mmu, arg + cpu->x);
 
-    if(cpu->a)          clear_flag(cpu, FLAG_Z);
-    if(cpu->a & MASK_N) set_flag(cpu, FLAG_N);
-    
-    cpu->cycles  += (arg + cpu->x) > 0xff ? 4 : 3; // Page Boundary Crossing
+    set_flag(cpu, FLAG_Z, !cpu->a);
+    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+   
+    cpu->cycles += (arg + cpu->x) > 0xff ? 4 : 3; // Page Boundary Crossing
     cpu->pc     += 3;
 }
 
+// Zero Page Indirect Y-Indexed Addressing
+void lda_ind_y(cpu_t* const cpu, mmu_t* const mmu){
+    printf("Instruction not implemented: LDA IND Y");
 
-// CLD
+    cpu->cycles += 5;
+    cpu->pc     += 2;
+}
+
+// X-Indexed Zero Page Addressing
+void lda_zpg_x(cpu_t* const cpu, mmu_t* const mmu){
+    const uint8_t arg = mmu_read(mmu, cpu->pc + 1);
+    
+    cpu->a = mmu_read(mmu, arg + cpu->x % 256);
+    
+    set_flag(cpu, FLAG_Z, !cpu->a);
+    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+
+    cpu->cycles += 4;
+    cpu->pc += 2;
+}
+
+
+
+// cld
 void cld(cpu_t* const cpu, mmu_t* const mmu){
     clear_flag(cpu, FLAG_D);
 
@@ -165,7 +193,7 @@ void cld(cpu_t* const cpu, mmu_t* const mmu){
     cpu->pc     += 1; 
 }
 
-// NOP
+// nop
 void nop(cpu_t* const cpu, mmu_t* const mmu){
     cpu->cycles += 2;
     cpu->pc     += 2;
