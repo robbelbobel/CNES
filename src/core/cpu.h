@@ -48,7 +48,6 @@ void lda_zpg(cpu_t* const cpu, mmu_t* const mmu);
 void lda_imm(cpu_t* const cpu, mmu_t* const mmu);
 void lda_abs(cpu_t* const cpu, mmu_t* const mmu);
 void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu);
-
 void lda_ind_y(cpu_t* const cpu, mmu_t* const mmu);
 void lda_zpg_x(cpu_t* const cpu, mmu_t* const mmu);
 void lda_abs_y(cpu_t* const cpu, mmu_t* const mmu);

@@ -82,7 +82,7 @@ void ora_imm(cpu_t* const cpu, mmu_t* const mmu){
     cpu->a |= mmu_read(mmu, cpu->pc + 1);
    
     set_flag(cpu, FLAG_Z, !cpu->a);
-    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+    set_flag(cpu, FLAG_N, cpu->a & MASK_N);
 
     cpu->cycles += 2;
     cpu->pc     += 2;
@@ -104,7 +104,7 @@ void lda_x_ind(cpu_t* const cpu, mmu_t* const mmu){
     cpu->a = mmu_read(mmu, (((uint16_t) mmu_read(mmu, cpu->x + arg + 1 % 256)) << 8) + mmu_read(mmu, cpu->x + arg % 256));
 
     set_flag(cpu, FLAG_Z, !cpu->a);
-    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+    set_flag(cpu, FLAG_N, cpu->a & MASK_N);
 
     cpu->cycles += 6;
     cpu->pc     += 2;
@@ -117,7 +117,7 @@ void lda_zpg(cpu_t* const cpu, mmu_t* const mmu){
     cpu->a = mmu_read(mmu, arg);
 
     set_flag(cpu, FLAG_Z, !cpu->a);
-    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+    set_flag(cpu, FLAG_N, cpu->a & MASK_N);
 
     cpu->cycles += 3;
     cpu->pc     += 2;
@@ -130,7 +130,7 @@ void lda_imm(cpu_t* const cpu, mmu_t* const mmu){
     cpu->a = arg;
 
     set_flag(cpu, FLAG_Z, !cpu->a);
-    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+    set_flag(cpu, FLAG_N, cpu->a & MASK_N);
 
     cpu->cycles += 2;
     cpu->pc     += 2;
@@ -143,7 +143,7 @@ void lda_abs(cpu_t* const cpu, mmu_t* const mmu){
     cpu->a = mmu_read(mmu, arg);
 
     set_flag(cpu, FLAG_Z, !cpu->a);
-    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+    set_flag(cpu, FLAG_N, cpu->a & MASK_N);
 
     cpu->cycles += 4;
     cpu->pc     += 3;
@@ -156,9 +156,9 @@ void lda_abs_x(cpu_t* const cpu, mmu_t* const mmu){
     cpu->a = mmu_read(mmu, arg + cpu->x);
 
     set_flag(cpu, FLAG_Z, !cpu->a);
-    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+    set_flag(cpu, FLAG_N, cpu->a & MASK_N);
    
-    cpu->cycles += (arg + cpu->x) > 0xff ? 4 : 3; // Page Boundary Crossing
+    cpu->cycles += (arg & 0xff + cpu->x) > 0xff ? 4 : 3; // Page Boundary Crossing
     cpu->pc     += 3;
 }
 
@@ -177,17 +177,29 @@ void lda_zpg_x(cpu_t* const cpu, mmu_t* const mmu){
     cpu->a = mmu_read(mmu, arg + cpu->x % 256);
     
     set_flag(cpu, FLAG_Z, !cpu->a);
-    set_flag(cpu, FLAG_N, cpu->a & 0x80);
+    set_flag(cpu, FLAG_N, cpu->a & MASK_N);
 
     cpu->cycles += 4;
-    cpu->pc += 2;
+    cpu->pc     += 2;
 }
 
+// Y-Indexed Absolute Addressing
+void lda_abs_y(cpu_t* const cpu, mmu_t* const mmu){
+    const uint16_t arg = ((uint16_t) (mmu_read(mmu, cpu->pc + 2) << 8)) + mmu_read(mmu, cpu->pc + 1);
+
+    cpu->a = mmu_read(mmu, arg + cpu->y);
+
+    set_flag(cpu, FLAG_Z, !cpu->a);
+    set_flag(cpu, FLAG_N, cpu->a & MASK_N);
+    
+    cpu->cycles += (arg & 0xff + cpu->y) > 0xff ? 5 : 4;
+    cpu->pc     += 3;
+}
 
 
 // cld
 void cld(cpu_t* const cpu, mmu_t* const mmu){
-    clear_flag(cpu, FLAG_D);
+    set_flag(cpu, FLAG_D, 0);
 
     cpu->cycles  += 2;
     cpu->pc     += 1; 
